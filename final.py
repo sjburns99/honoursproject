@@ -865,9 +865,9 @@ class AgentBase:
         print("______________________________")
 
 class Mouse(AgentBase):
-    def __init__(self, energy, visionRange):
+    def __init__(self, energy, visionRange, energyFromPickup):
         super().__init__(energy, visionRange)
-        
+        self.energyFromPickup = energyFromPickup
         self.targetType = Pickup
         self.fleeFrom = Cat
         self.niceName = "Mouse"
@@ -889,7 +889,7 @@ class Mouse(AgentBase):
         actor.entVisionCurrent.remove(self)
         actor.entVisionMemory.remove(self)
 
-        actor.energy += 50
+        actor.energy += self.energyFromPickup
         actor.points += 1
 
         self.die(grid, actor)
@@ -917,8 +917,9 @@ class Cat(AgentBase):
     
     
 class Pickup:
-    def __init__(self):
+    def __init__(self, pickupEnergy):
         self.niceName = "Pickup"
+        self.pickupEnergy = pickupEnergy
 
     def placeMe(self, grid):
         #Ensure target tile is within grid and isn't occupied
@@ -952,7 +953,7 @@ class Pickup:
 
             #Pass values to actor
             actor.target = self.position
-            actor.energy += 20
+            actor.energy += self.pickupEnergy
             actor.points += 1
         else:
             #Respawn, but don't provide benefits, in case a cat happens to walk onto the tile
@@ -969,10 +970,9 @@ BLUE = (0, 0, 255)
 GREEN = (0, 255, 0)
 GREY = (140, 140, 140)
 
-def runGame(gridX, gridY, wallPercentage, catCount, mouseCount, pickupCount):
-
+def runGame(properties):
     #Generate a grid
-    grid = Grid(gridX, gridY, wallPercentage)
+    grid = Grid(properties["gridX"], properties["gridY"], properties["wallPercentage"])
     grid.generate()
 
     #Scale window based on grid size
@@ -988,18 +988,18 @@ def runGame(gridX, gridY, wallPercentage, catCount, mouseCount, pickupCount):
     graveyard = []
 
     #Add agents to the active agents list and give them names
-    for i in range(catCount):
-        activeAgents.append(Cat(100, 7.5))
-        if catCount > 1:
+    for i in range(properties["noCats"]):
+        activeAgents.append(Cat(properties["catEnergy"], properties["catVis"]))
+        if properties["noCats"] > 1:
             activeAgents[-1].niceName += " " + str(i + 1)
 
-    for i in range(mouseCount):
-        activeAgents.append(Mouse(100, 7.5))
-        if mouseCount > 1:
+    for i in range(properties["noMice"]):
+        activeAgents.append(Mouse(properties["mouseEnergy"], properties["mouseVis"], properties["energyFromMouse"]))
+        if properties["noMice"] > 1:
             activeAgents[-1].niceName += " " + str(i + 1)
 
-    for i in range(pickupCount):
-        environmentPickups.append(Pickup())
+    for i in range(properties["noPickups"]):
+        environmentPickups.append(Pickup(properties["energyFromPickup"]))
         environmentPickups[-1].placeMe(grid)
 
     #Place agents on the grid
@@ -1134,6 +1134,21 @@ def main():
 
     #Run the game - these values can be changed to alter the environment
     #(X Grid Size, Y Grid Size, Percentage of Wall Tiles, No. Cats, No. Mice, No. pickups)
-    runGame(20, 20, 10, 1, 3, 3)
+    properties = {
+        "gridX": 20,
+        "gridY": 20,
+        "wallPercentage": 10,
+        "noCats": 1,
+        "noMice": 3,
+        "noPickups": 3,
+        "catVis": 7.5,
+        "mouseVis": 7.5,
+        "catEnergy": 200,
+        "mouseEnergy": 100,
+        "energyFromPickup": 20,
+        "energyFromMouse": 50
+        }
+    runGame(properties)
+    input("")
         
 main()
