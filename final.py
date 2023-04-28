@@ -32,7 +32,7 @@ class Grid:
             row = []
             for x in range (self.size["x"]):
                 #For now, randomly assign IDs to the rows - either walls or empty tiles
-                #If there's time later, gie option to place walls manually
+                #If there's time later, give option to place walls manually
                 if(random.randint(1, 100) > self.wallPercentage):
                     row.append(GridNode(x, y, False))
                 else:
@@ -773,6 +773,15 @@ class AgentBase:
         print(self.niceName)
         print("\nCurrent Location: [%s, %s]" %(self.position["x"], self.position["y"]))
         print("Energy: %i" % self.energy)
+        print("Lifetime: %i" % self.lifeTime)
+        undiscovered = 0
+        total = grid.size["x"] * grid.size["y"]
+        for y in self.memGrid.grid:
+            for x in y:
+                if x.unknownMarker:
+                    undiscovered += 1
+
+        print("Percentage of Grid Explored: %i%%" % (((total - undiscovered) / total) * 100))
         print("\nIn Vision:")
         if (len(self.entVisionCurrent) == 0):
             print("\tNo Objects")
@@ -1133,7 +1142,6 @@ def main():
     pygame.init()
 
     #Run the game - these values can be changed to alter the environment
-    #(X Grid Size, Y Grid Size, Percentage of Wall Tiles, No. Cats, No. Mice, No. pickups)
     properties = {
         "gridX": 20,
         "gridY": 20,
@@ -1149,6 +1157,7 @@ def main():
         "energyFromMouse": 50
         }
     runGame(properties)
+    pygame.quit()
     input("")
         
 main()
