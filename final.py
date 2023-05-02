@@ -1068,7 +1068,7 @@ def runGame(properties):
             elif isinstance(agent, Cat):
                 catCount += 1
             
-        if(mouseCount == 0 or catCount == 0):
+        if((mouseCount == 0 and properties["noMice"] > 0) or (catCount == 0 and properties["noCats"] > 0)):
             running = False
 
     #End of game report
